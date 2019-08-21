@@ -1,0 +1,11 @@
+{
+  "regionId": "cn-beijing",
+  "accessTokenSecretRef": {
+    "name": "alidns-secret",
+    "key": "access-token"
+  },
+  "secretKeySecretRef": {
+    "name": "alidns-secret",
+    "key": "secret-key"
+  }
+}
