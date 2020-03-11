@@ -50,6 +50,10 @@ spec:
               readOnly: true
           resources:
 {{ toYaml .Values.resources | indent 12 }}
+{{ if .Values.image.privateRegistry.enabled }}
+      imagePullSecrets:
+        - name: {{ .Values.image.privateRegistry.dockerRegistrySecret }}
+{{ end }}
       volumes:
         - name: certs
           secret:
