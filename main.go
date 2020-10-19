@@ -3,14 +3,16 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/credentials"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
 
-	"github.com/pkg/errors"
 	"os"
 	"strings"
+
+	"github.com/pkg/errors"
 
 	extapi "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -102,7 +104,7 @@ func (c *aliDNSProviderSolver) Present(ch *v1alpha1.ChallengeRequest) error {
 	}
 
 	// TODO: do something more useful with the decoded configuration
-	fmt.Printf("Decoded configuration %v", cfg)
+	fmt.Printf("Decoded configuration: %v\n", cfg)
 
 	accessToken, err := c.loadSecretData(cfg.AccessToken, ch.ResourceNamespace)
 	secretKey, err := c.loadSecretData(cfg.SecretToken, ch.ResourceNamespace)
@@ -118,14 +120,14 @@ func (c *aliDNSProviderSolver) Present(ch *v1alpha1.ChallengeRequest) error {
 
 	_, zoneName, err := c.getHostedZone(ch.ResolvedZone)
 	if err != nil {
-		return fmt.Errorf("alicloud: %v", err)
+		return fmt.Errorf("alicloud: error getting hosted zones: %v", err)
 	}
 
 	recordAttributes := c.newTxtRecord(zoneName, ch.ResolvedFQDN, ch.Key)
 
 	_, err = c.aliDNSClient.AddDomainRecord(recordAttributes)
 	if err != nil {
-		return fmt.Errorf("alicloud: API call failed: %v", err)
+		return fmt.Errorf("alicloud: error adding domain record: %v", err)
 	}
 	return nil
 }
@@ -139,7 +141,7 @@ func (c *aliDNSProviderSolver) Present(ch *v1alpha1.ChallengeRequest) error {
 func (c *aliDNSProviderSolver) CleanUp(ch *v1alpha1.ChallengeRequest) error {
 	records, err := c.findTxtRecords(ch.ResolvedZone, ch.ResolvedFQDN)
 	if err != nil {
-		return fmt.Errorf("alicloud: %v", err)
+		return fmt.Errorf("alicloud: error finding txt records: %v", err)
 	}
 
 	_, _, err = c.getHostedZone(ch.ResolvedZone)
@@ -153,7 +155,7 @@ func (c *aliDNSProviderSolver) CleanUp(ch *v1alpha1.ChallengeRequest) error {
 			request.RecordId = rec.RecordId
 			_, err = c.aliDNSClient.DeleteDomainRecord(request)
 			if err != nil {
-				return fmt.Errorf("alicloud: %v", err)
+				return fmt.Errorf("alicloud: error deleting domain record: %v", err)
 			}
 		}
 	}
@@ -206,7 +208,7 @@ func (c *aliDNSProviderSolver) getHostedZone(resolvedZone string) (string, strin
 
 		response, err := c.aliDNSClient.DescribeDomains(request)
 		if err != nil {
-			return "", "", fmt.Errorf("API call failed: %v", err)
+			return "", "", fmt.Errorf("alicloud: error describing domains: %v", err)
 		}
 
 		domains = append(domains, response.Domains.Domain...)
@@ -254,7 +256,7 @@ func (c *aliDNSProviderSolver) findTxtRecords(domain string, fqdn string) ([]ali
 
 	result, err := c.aliDNSClient.DescribeDomainRecords(request)
 	if err != nil {
-		return records, fmt.Errorf("API call has failed: %v", err)
+		return records, fmt.Errorf("alicloud: error describing domain records: %v", err)
 	}
 
 	recordName := c.extractRecordName(fqdn, zoneName)
