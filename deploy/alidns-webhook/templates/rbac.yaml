@@ -46,7 +46,7 @@ subjects:
   - apiGroup: ""
     kind: ServiceAccount
     name: {{ include "alidns-webhook.fullname" . }}
-    namespace: {{ .Values.certManager.namespace }}
+    namespace: {{ .Release.Namespace }}
 ---
 # Grant the webhook permission to read the ConfigMap containing the Kubernetes
 # apiserver's requestheader-ca-certificate.
