@@ -26,6 +26,7 @@ rules:
       - 'secrets'
     verbs:
       - 'get'
+---
 # Bind the previously created role to the webhook service account to allow reading from secrets in a cert-manager namespace
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
