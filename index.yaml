@@ -1,0 +1,13 @@
+apiVersion: v1
+entries:
+  alidns-webhook:
+  - apiVersion: v1
+    appVersion: "1.0"
+    created: "2020-10-20T15:26:17.774260627Z"
+    description: A Helm chart for Kubernetes
+    digest: 23b88f504c17dd360d55dfaccfc3f24bee2df3eac34cb092ac4979e0b346163c
+    name: alidns-webhook
+    urls:
+    - https://github.com/DEVmachine-fr/cert-manager-alidns-webhook/releases/download/alidns-webhook-0.1.1/alidns-webhook-0.1.1.tgz
+    version: 0.1.1
+generated: "2020-10-20T15:26:17.569761146Z"
