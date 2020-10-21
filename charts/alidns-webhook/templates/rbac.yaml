@@ -8,6 +8,46 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 ---
+# Grant permissions to read secrets inside the cert-manager namespace to get credentials
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "alidns-webhook.fullname" . }}:secrets-reader
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ include "alidns-webhook.name" . }}
+    chart: {{ include "alidns-webhook.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}    
+rules:
+  - apiGroups:
+      - ''
+    resources:
+      - 'secrets'
+    verbs:
+      - 'get'
+---
+# Bind the previously created role to the webhook service account to allow reading from secrets in a cert-manager namespace
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "alidns-webhook.fullname" . }}:secrets-reader
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ include "alidns-webhook.name" . }}
+    chart: {{ include "alidns-webhook.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}    
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "alidns-webhook.fullname" . }}:secrets-reader
+subjects:
+  - apiGroup: ""
+    kind: ServiceAccount
+    name: {{ include "alidns-webhook.fullname" . }}
+    namespace: {{ .Release.Namespace }}
+---
 # Grant the webhook permission to read the ConfigMap containing the Kubernetes
 # apiserver's requestheader-ca-certificate.
 # This ConfigMap is automatically created by the Kubernetes apiserver.
