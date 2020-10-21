@@ -21,9 +21,9 @@ docker build . -t <your registry>/alidns-webhook:latest
 docker push <your registry>/alidns-webhook
 ```
 
-Use the helm chart in deploy directory.
+Use the helm chart in charts directory.
 ```
-helm template deploy --set image.repository=<your registry> --set image.tag=latest
+helm template charts --set image.repository=<your registry> --set image.tag=latest
 ```
 
 Create the secret holding alibaba credential :
