@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 
@@ -21,7 +22,7 @@ import (
 
 	"github.com/jetstack/cert-manager/pkg/acme/webhook/apis/acme/v1alpha1"
 	"github.com/jetstack/cert-manager/pkg/acme/webhook/cmd"
-	apis "github.com/jetstack/cert-manager/pkg/apis/certmanager/v1alpha1"
+	cmmetav1 "github.com/jetstack/cert-manager/pkg/apis/meta/v1"
 	"github.com/jetstack/cert-manager/pkg/issuer/acme/dns/util"
 )
 
@@ -77,8 +78,8 @@ type aliDNSProviderConfig struct {
 	// These fields will be set by users in the
 	// `issuer.spec.acme.dns01.providers.webhook.config` field.
 
-	AccessToken apis.SecretKeySelector `json:"accessTokenSecretRef"`
-	SecretToken apis.SecretKeySelector `json:"secretKeySecretRef"`
+	AccessToken cmmetav1.SecretKeySelector `json:"accessTokenSecretRef"`
+	SecretToken cmmetav1.SecretKeySelector `json:"secretKeySecretRef"`
 	Regionid    string                 `json:"regionId"`
 }
 
@@ -276,8 +277,8 @@ func (c *aliDNSProviderSolver) extractRecordName(fqdn, domain string) string {
 	return name
 }
 
-func (c *aliDNSProviderSolver) loadSecretData(selector apis.SecretKeySelector, ns string) ([]byte, error) {
-	secret, err := c.client.CoreV1().Secrets(ns).Get(selector.Name, metav1.GetOptions{})
+func (c *aliDNSProviderSolver) loadSecretData(selector cmmetav1.SecretKeySelector, ns string) ([]byte, error) {
+	secret, err := c.client.CoreV1().Secrets(ns).Get(context.TODO(), selector.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to load secret %q", ns+"/"+selector.Name)
 	}

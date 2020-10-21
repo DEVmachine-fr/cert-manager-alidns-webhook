@@ -8,9 +8,11 @@ See the cert-manager's documentation for more details on webhook : https://cert-
 
 ## Tests
 
+Modify testdata/alidns-solver to add a valid token for alidns. 
+
 ```
 scripts/fetch-test-binaries.sh
-TEST_ZONE_NAME=example.com. go test .
+TEST_ZONE_NAME=example.com. go test . # replace example.com with a zone which belongs to given credentials
 ```
 
 ## Deploy

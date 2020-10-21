@@ -1,18 +1,16 @@
 module github.com/olivierboudet/cert-manager-alidns-webhook
 
-go 1.12
+go 1.15
 
 require (
 	github.com/aliyun/alibaba-cloud-sdk-go v0.0.0-20190708091929-88eb281ef085
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
-	github.com/imdario/mergo v0.3.7 // indirect
-	github.com/jetstack/cert-manager v0.8.1
-	github.com/pkg/errors v0.8.0
-	k8s.io/apiextensions-apiserver v0.0.0-20190413053546-d0acb7a76918
-	k8s.io/apimachinery v0.0.0-20190413052414-40a3f73b0fa2
-	k8s.io/client-go v11.0.0+incompatible
+	github.com/coreos/etcd v3.3.15+incompatible // indirect
+	github.com/google/go-github v17.0.0+incompatible // indirect
+	github.com/jetstack/cert-manager v1.0.3
+	github.com/pkg/errors v0.9.1
+	gonum.org/v1/netlib v0.0.0-20190331212654-76723241ea4e // indirect
+	k8s.io/apiextensions-apiserver v0.19.0
+	k8s.io/apimachinery v0.19.0
+	k8s.io/client-go v0.19.0
+	sigs.k8s.io/structured-merge-diff v1.0.1-0.20191108220359-b1b620dd3f06 // indirect
 )
-
-replace k8s.io/client-go => k8s.io/client-go v0.0.0-20190413052642-108c485f896e
-
-replace github.com/evanphx/json-patch => github.com/evanphx/json-patch v0.0.0-20190203023257-5858425f7550
