@@ -13,8 +13,8 @@ certManager:
   serviceAccountName: cert-manager
 
 image:
-  repository: mycompany/webhook-image
-  tag: latest
+  repository: ghcr.io/devmachine-fr/cert-manager-alidns-webhook/cert-manager-alidns-webhook
+  tag: 0.2.0
   pullPolicy: IfNotPresent
   privateRegistry:
     enabled: false
