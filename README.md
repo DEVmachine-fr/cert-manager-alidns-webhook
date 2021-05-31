@@ -17,6 +17,11 @@ TEST_ZONE_NAME=example.com. go test . # replace example.com with a zone which be
 
 ## Deploy
 
+Use our docker image:
+```
+docker.pkg.github.com/DEVmachine-fr/cert-manager-alidns-webhook/cert-manager-alidns-webhook:<version>
+```
+
 Build and publish the docker image:
 ```
 docker build . -t <your registry>/alidns-webhook:latest
