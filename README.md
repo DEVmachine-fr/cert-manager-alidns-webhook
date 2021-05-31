@@ -5,32 +5,13 @@ This project is based on code initialy commited in https://github.com/go-acme/le
 This is an webhook implementation for Cert-Manager to use with Alibaba Cloud DNS (aka AliDNS).
 See the cert-manager's documentation for more details on webhook : https://cert-manager.io/docs/concepts/webhook/
 
-
-## Tests
-
-Modify testdata/alidns-solver to add a valid token for alidns. 
+## Usage
+### Installation
 
 ```
-scripts/fetch-test-binaries.sh
-TEST_ZONE_NAME=example.com. go test . # replace example.com with a zone which belongs to given credentials
-```
-
-## Deploy
-
-Use our docker image:
-```
-docker.pkg.github.com/DEVmachine-fr/cert-manager-alidns-webhook/cert-manager-alidns-webhook:<version>
-```
-
-Build and publish the docker image:
-```
-docker build . -t <your registry>/alidns-webhook:latest
-docker push <your registry>/alidns-webhook
-```
-
-Use the helm chart in charts directory.
-```
-helm template charts --set image.repository=<your registry> --set image.tag=latest
+helm repo add cert-manager-alidns-webhook https://devmachine-fr.github.io/cert-manager-alidns-webhook
+helm repo update
+helm install cert-manager-alidns-webhook/alidns-webhook
 ```
 
 Create the secret holding alibaba credential :
@@ -38,7 +19,7 @@ Create the secret holding alibaba credential :
 kubectl create secret generic alidns-secrets --from-literal="access-token=yourtoken" --from-literal="secret-key=yoursecretkey"
 ```
 
-## Create an issuer
+### Create an issuer
 
 The name of solver to use is `alidns-solver`. You can create an issuer as below :
 ```
@@ -73,8 +54,30 @@ items:
           - '*.example.com'
 
 ```
-See cert-manager documenation for more information : https://cert-manager.io/docs/configuration/acme/dns01/
+See cert-manager documentation for more information : https://cert-manager.io/docs/configuration/acme/dns01/
 
-## Create the certification
+### Create the certification
 
 Then create the certificate which will use this issuer : https://cert-manager.io/docs/usage/certificate/
+
+## Tests
+
+Modify testdata/alidns-solver to add a valid token for alidns. 
+
+```
+scripts/fetch-test-binaries.sh
+TEST_ZONE_NAME=example.com. go test . # replace example.com with a zone which belongs to given credentials
+```
+
+## Build
+
+Build and publish the docker image:
+```
+docker build . -t <your registry>/alidns-webhook:latest
+docker push <your registry>/alidns-webhook
+```
+
+Use the helm chart in charts directory.
+```
+helm template charts --set image.repository=<your registry> --set image.tag=latest
+```
