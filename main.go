@@ -205,39 +205,7 @@ func loadConfig(cfgJSON *extapi.JSON) (aliDNSProviderConfig, error) {
 }
 
 func (c *aliDNSProviderSolver) getHostedZone(resolvedZone string) (string, string, error) {
-	request := alidns.CreateDescribeDomainsRequest()
-
-	var domains []alidns.Domain
-	startPage := 1
-
-	for {
-		request.PageNumber = requests.NewInteger(startPage)
-
-		response, err := c.aliDNSClient.DescribeDomains(request)
-		if err != nil {
-			return "", "", fmt.Errorf("alicloud: error describing domains: %v", err)
-		}
-
-		domains = append(domains, response.Domains.Domain...)
-
-		if response.PageNumber*response.PageSize >= response.TotalCount {
-			break
-		}
-
-		startPage++
-	}
-
-	var hostedZone alidns.Domain
-	for _, zone := range domains {
-		if zone.DomainName == util.UnFqdn(resolvedZone) {
-			hostedZone = zone
-		}
-	}
-
-	if hostedZone.DomainId == "" {
-		return "", "", fmt.Errorf("zone %s not found in AliDNS", resolvedZone)
-	}
-	return fmt.Sprintf("%v", hostedZone.DomainId), hostedZone.DomainName, nil
+	return "", resolvedZone[:len(resolvedZone)-1], nil
 }
 
 func (c *aliDNSProviderSolver) newTxtRecord(zone, fqdn, value string) *alidns.AddDomainRecordRequest {
