@@ -80,7 +80,7 @@ type aliDNSProviderConfig struct {
 
 	AccessToken cmmetav1.SecretKeySelector `json:"accessTokenSecretRef"`
 	SecretToken cmmetav1.SecretKeySelector `json:"secretKeySecretRef"`
-	Regionid    string                 `json:"regionId"`
+	Regionid    string                     `json:"regionId"`
 }
 
 // Name is used as the name for this DNS solver when referencing it on the ACME
@@ -108,6 +108,9 @@ func (c *aliDNSProviderSolver) Present(ch *v1alpha1.ChallengeRequest) error {
 	fmt.Printf("Decoded configuration: %v\n", cfg)
 
 	accessToken, err := c.loadSecretData(cfg.AccessToken, ch.ResourceNamespace)
+	if err != nil {
+		return err
+	}
 	secretKey, err := c.loadSecretData(cfg.SecretToken, ch.ResourceNamespace)
 	if err != nil {
 		return err
@@ -117,6 +120,9 @@ func (c *aliDNSProviderSolver) Present(ch *v1alpha1.ChallengeRequest) error {
 	credential := credentials.NewAccessKeyCredential(string(accessToken), string(secretKey))
 
 	client, err := alidns.NewClientWithOptions(cfg.Regionid, conf, credential)
+	if err != nil {
+		return err
+	}
 	c.aliDNSClient = client
 
 	_, zoneName, err := c.getHostedZone(ch.ResolvedZone)
