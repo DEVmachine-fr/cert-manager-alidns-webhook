@@ -23,6 +23,8 @@ image:
 nameOverride: ""
 fullnameOverride: ""
 
+securePort: 443
+
 service:
   type: ClusterIP
   port: 443
