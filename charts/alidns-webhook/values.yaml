@@ -47,3 +47,9 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+
+# Optional additional envs for the webhook container
+env: []
+# - name: ALIDNS_WEBHOOK_ENV_VAR_1
+#   value: "env_var_1"
