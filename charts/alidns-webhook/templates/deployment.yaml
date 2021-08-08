@@ -32,7 +32,7 @@ spec:
             - name: GROUP_NAME
               value: {{ .Values.groupName | quote }}
           {{- if .Values.env }}
-{{- toYaml .Values.env | nindent 12 }}
+{{- toYaml .Values.extraEnv | nindent 12 }}
           {{- end }}
           ports:
             - name: https

@@ -50,6 +50,8 @@ affinity: {}
 
 
 # Optional additional envs for the webhook container
-env: []
+extraEnv: []
 # - name: ALIDNS_WEBHOOK_ENV_VAR_1
 #   value: "env_var_1"
+# - name: ALIDNS_WEBHOOK_ENV_VAR_2
+#   value: "env_var_2"
