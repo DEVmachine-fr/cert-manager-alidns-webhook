@@ -25,7 +25,7 @@ The name of solver to use is `alidns-solver`. You can create an issuer as below 
 ```
 apiVersion: v1
 items:
-- apiVersion: cert-manager.io/v1alpha2
+- apiVersion: cert-manager.io/v1
   kind: Issuer
   metadata:
     name: letsencrypt
@@ -52,11 +52,55 @@ items:
         selector:
           dnsNames:
           - '*.example.com'
-
 ```
+
+Or you can create an ClusterIssuer as below :
+```
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt
+spec:
+  acme:
+    email: contact@example.com
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: letsencrypt
+    solvers:
+    - dns01:
+        webhook:
+            config:
+              accessTokenSecretRef:
+                key: access-token
+                name: alidns-secrets
+              regionId: cn-beijing
+              secretKeySecretRef:
+                key: secret-key
+                name: alidns-secrets
+            groupName: example.com
+            solverName: alidns-solver
+```
+
 See cert-manager documentation for more information : https://cert-manager.io/docs/configuration/acme/dns01/
 
 ### Create the certification
+
+Create an certification using ClusterIssuer as below :
+```
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: example-tls
+spec:
+  secretName: example-com-tls
+  commonName: example.com
+  dnsNames:
+  - example.com
+  - "*.example.com"
+  issuerRef:
+    name: letsencrypt
+    kind: ClusterIssuer
+```
 
 Then create the certificate which will use this issuer : https://cert-manager.io/docs/usage/certificate/
 
