@@ -33,7 +33,8 @@ spec:
     email: contact@example.com
     privateKeySecretRef:
       name: letsencrypt
-    server: https://acme-staging-v02.api.letsencrypt.org/directory
+#    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    server: https://acme-v02.api.letsencrypt.org/directory
     solvers:
     - dns01:
         webhook:
@@ -62,7 +63,8 @@ metadata:
 spec:
   acme:
     email: contact@example.com
-    server: https://acme-staging-v02.api.letsencrypt.org/directory
+#    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    server: https://acme-v02.api.letsencrypt.org/directory
     privateKeySecretRef:
       name: letsencrypt
     solvers:
