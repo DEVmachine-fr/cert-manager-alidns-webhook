@@ -76,7 +76,7 @@ spec:
               secretKeySecretRef:
                 key: secret-key
                 name: alidns-secrets
-            groupName: example.com
+            groupName: example.com # groupName must match the one configured on webhook deployment (see Helm chart's values) !
             solverName: alidns-solver
 ```
 
