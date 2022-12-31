@@ -1,3 +1,0 @@
-# Solver testdata directory
-
-TODO
