@@ -11,7 +11,7 @@ See the cert-manager's documentation for more details on webhook : https://cert-
 ```
 helm repo add cert-manager-alidns-webhook https://devmachine-fr.github.io/cert-manager-alidns-webhook
 helm repo update
-helm install cert-manager-alidns-webhook/alidns-webhook
+helm install alidns-webhook cert-manager-alidns-webhook/alidns-webhook
 ```
 
 Create the secret holding alibaba credential :
