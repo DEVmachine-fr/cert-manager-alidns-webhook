@@ -45,7 +45,7 @@ func main() {
 
 // customDNSProviderSolver implements the provider-specific logic needed to
 // 'present' an ACME challenge TXT record for your own DNS provider.
-// To do so, it must implement the `github.com/jetstack/cert-manager/pkg/acme/webhook.Solver`
+// To do so, it must implement the `github.com/cert-manager/cert-manager/pkg/acme/webhook.Solver`
 // interface.
 type aliDNSProviderSolver struct {
 	// If a Kubernetes 'clientset' is needed, you must:
@@ -125,7 +125,7 @@ func (c *aliDNSProviderSolver) Present(ch *v1alpha1.ChallengeRequest) error {
 	}
 	c.aliDNSClient = client
 
-	_, zoneName, err := c.getHostedZone(ch.ResolvedZone)
+	zoneName, err := c.getHostedZone(ch.ResolvedZone)
 	if err != nil {
 		return fmt.Errorf("alicloud: error getting hosted zones: %v", err)
 	}
@@ -151,7 +151,7 @@ func (c *aliDNSProviderSolver) CleanUp(ch *v1alpha1.ChallengeRequest) error {
 		return fmt.Errorf("alicloud: error finding txt records: %v", err)
 	}
 
-	_, _, err = c.getHostedZone(ch.ResolvedZone)
+	_, err = c.getHostedZone(ch.ResolvedZone)
 	if err != nil {
 		return fmt.Errorf("alicloud: %v", err)
 	}
@@ -204,10 +204,10 @@ func loadConfig(cfgJSON *extapi.JSON) (aliDNSProviderConfig, error) {
 	return cfg, nil
 }
 
-func (c *aliDNSProviderSolver) getHostedZone(resolvedZone string) (string, string, error) {
+func (c *aliDNSProviderSolver) getHostedZone(resolvedZone string) (string, error) {
 	request := alidns.CreateDescribeDomainsRequest()
 
-	var domains []alidns.DomainInDescribeDomains
+	var domains []string
 	startPage := 1
 
 	for {
@@ -215,10 +215,12 @@ func (c *aliDNSProviderSolver) getHostedZone(resolvedZone string) (string, strin
 
 		response, err := c.aliDNSClient.DescribeDomains(request)
 		if err != nil {
-			return "", "", fmt.Errorf("alicloud: error describing domains: %v", err)
+			return "", fmt.Errorf("alicloud: error describing domains: %v", err)
 		}
 
-		domains = append(domains, response.Domains.Domain...)
+		for _, domain := range response.Domains.Domain {
+			domains = append(domains, domain.DomainName)
+		}
 
 		if response.PageNumber*response.PageSize >= response.TotalCount {
 			break
@@ -227,17 +229,17 @@ func (c *aliDNSProviderSolver) getHostedZone(resolvedZone string) (string, strin
 		startPage++
 	}
 
-	var hostedZone alidns.DomainInDescribeDomains
+	var hostedZone string
 	for _, zone := range domains {
-		if zone.DomainName == util.UnFqdn(resolvedZone) {
+		if zone == util.UnFqdn(resolvedZone) {
 			hostedZone = zone
 		}
 	}
 
-	if hostedZone.DomainId == "" {
-		return "", "", fmt.Errorf("zone %s not found in AliDNS", resolvedZone)
+	if hostedZone == "" {
+		return "", fmt.Errorf("zone %s not found in AliDNS", resolvedZone)
 	}
-	return fmt.Sprintf("%v", hostedZone.DomainId), hostedZone.DomainName, nil
+	return hostedZone, nil
 }
 
 func (c *aliDNSProviderSolver) newTxtRecord(zone, fqdn, value string) *alidns.AddDomainRecordRequest {
@@ -250,7 +252,7 @@ func (c *aliDNSProviderSolver) newTxtRecord(zone, fqdn, value string) *alidns.Ad
 }
 
 func (c *aliDNSProviderSolver) findTxtRecords(domain string, fqdn string) ([]alidns.Record, error) {
-	_, zoneName, err := c.getHostedZone(domain)
+	zoneName, err := c.getHostedZone(domain)
 	if err != nil {
 		return nil, err
 	}
