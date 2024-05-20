@@ -128,7 +128,8 @@ spec:
 Modify testdata/alidns-solver to add a valid token for alidns. 
 
 ```
-TEST_ZONE_NAME=example.com. make test # replace example.com with a zone which belongs to given credentials
+# replace example.com with a zone which belongs to given credentials
+TEST_ASSET_ETCD=kubebuilder/bin/etcd TEST_ASSET_KUBE_APISERVER=kubebuilder/bin/kube-apiserver TEST_ASSET_KUBECTL=kubebuilder/bin/kubectl TEST_ZONE_NAME=example.com. make test .
 ```
 
 ## Build
