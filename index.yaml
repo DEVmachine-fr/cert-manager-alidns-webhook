@@ -2,6 +2,15 @@ apiVersion: v1
 entries:
   alidns-webhook:
   - apiVersion: v1
+    appVersion: 0.8.1
+    created: "2024-07-29T06:12:31.079098731Z"
+    description: Deploys alidns webhook for cert-manager.
+    digest: 1f8f314a58f0e3a21edb0e3aa99b69c4a286e5595e9fb5474082b3ecb2a25bdd
+    name: alidns-webhook
+    urls:
+    - https://github.com/DEVmachine-fr/cert-manager-alidns-webhook/releases/download/alidns-webhook-0.8.1/alidns-webhook-0.8.1.tgz
+    version: 0.8.1
+  - apiVersion: v1
     appVersion: 0.8.0
     created: "2024-05-20T19:53:09.359468215Z"
     description: Deploys alidns webhook for cert-manager.
