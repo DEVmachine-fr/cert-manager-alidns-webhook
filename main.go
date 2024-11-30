@@ -5,10 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/aliyun/alibaba-cloud-sdk-go/sdk"
-	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/auth/credentials"
-	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
-	"github.com/aliyun/alibaba-cloud-sdk-go/services/alidns"
+	alidns "github.com/alibabacloud-go/alidns-20150109/v4/client"
+	openapi "github.com/alibabacloud-go/darabonba-openapi/v2/client"
+	teautil "github.com/alibabacloud-go/tea-utils/v2/service"
+	"github.com/alibabacloud-go/tea/tea"
+	"github.com/aliyun/credentials-go/credentials"
 
 	"os"
 	"strings"
@@ -116,10 +117,25 @@ func (c *aliDNSProviderSolver) Present(ch *v1alpha1.ChallengeRequest) error {
 		return err
 	}
 
-	conf := sdk.NewConfig()
-	credential := credentials.NewAccessKeyCredential(string(accessToken), string(secretKey))
+	var cc *credentials.Config = nil
 
-	client, err := alidns.NewClientWithOptions(cfg.Regionid, conf, credential)
+	if len(accessToken) != 0 && len(secretKey) != 0 {
+		cc = new(credentials.Config).
+			SetType("access_key").
+			SetAccessKeyId(string(accessToken)).
+			SetAccessKeySecret(string(secretKey))
+	}
+
+	credential, err := credentials.NewCredential(cc)
+	if err != nil {
+		return err
+	}
+
+	config := &openapi.Config{
+		Credential: credential,
+		RegionId:   tea.String(cfg.Regionid),
+	}
+	client, err := alidns.NewClient(config)
 	if err != nil {
 		return err
 	}
@@ -157,8 +173,8 @@ func (c *aliDNSProviderSolver) CleanUp(ch *v1alpha1.ChallengeRequest) error {
 	}
 
 	for _, rec := range records {
-		if ch.Key == rec.Value {
-			request := alidns.CreateDeleteDomainRecordRequest()
+		if ch.Key == *rec.Value {
+			request := &alidns.DeleteDomainRecordRequest{}
 			request.RecordId = rec.RecordId
 			_, err = c.aliDNSClient.DeleteDomainRecord(request)
 			if err != nil {
@@ -205,24 +221,26 @@ func loadConfig(cfgJSON *extapi.JSON) (aliDNSProviderConfig, error) {
 }
 
 func (c *aliDNSProviderSolver) getHostedZone(resolvedZone string) (string, error) {
-	request := alidns.CreateDescribeDomainsRequest()
+	request := &alidns.DescribeDomainsRequest{}
+	runtime := &teautil.RuntimeOptions{}
 
 	var domains []string
-	startPage := 1
+	startPage := int64(1)
 
 	for {
-		request.PageNumber = requests.NewInteger(startPage)
-
-		response, err := c.aliDNSClient.DescribeDomains(request)
+		request.PageNumber = tea.Int64(startPage)
+		response, err := c.aliDNSClient.DescribeDomainsWithOptions(request, runtime)
 		if err != nil {
 			return "", fmt.Errorf("alicloud: error describing domains: %v", err)
 		}
 
-		for _, domain := range response.Domains.Domain {
-			domains = append(domains, domain.DomainName)
+		for _, domain := range response.Body.Domains.Domain {
+			domains = append(domains, *domain.DomainName)
 		}
 
-		if response.PageNumber*response.PageSize >= response.TotalCount {
+		pageNumber := *response.Body.PageNumber
+		pageSize := *response.Body.PageSize
+		if pageNumber*pageSize >= *response.Body.TotalCount {
 			break
 		}
 
@@ -243,25 +261,25 @@ func (c *aliDNSProviderSolver) getHostedZone(resolvedZone string) (string, error
 }
 
 func (c *aliDNSProviderSolver) newTxtRecord(zone, fqdn, value string) *alidns.AddDomainRecordRequest {
-	request := alidns.CreateAddDomainRecordRequest()
-	request.Type = "TXT"
-	request.DomainName = zone
-	request.RR = c.extractRecordName(fqdn, zone)
-	request.Value = value
+	request := &alidns.AddDomainRecordRequest{}
+	request.Type = tea.String("TXT")
+	request.DomainName = tea.String(zone)
+	request.RR = tea.String(c.extractRecordName(fqdn, zone))
+	request.Value = tea.String(value)
 	return request
 }
 
-func (c *aliDNSProviderSolver) findTxtRecords(domain string, fqdn string) ([]alidns.Record, error) {
+func (c *aliDNSProviderSolver) findTxtRecords(domain string, fqdn string) ([]*alidns.DescribeDomainRecordsResponseBodyDomainRecordsRecord, error) {
 	zoneName, err := c.getHostedZone(domain)
 	if err != nil {
 		return nil, err
 	}
 
-	request := alidns.CreateDescribeDomainRecordsRequest()
-	request.DomainName = zoneName
-	request.PageSize = requests.NewInteger(500)
+	request := &alidns.DescribeDomainRecordsRequest{}
+	request.DomainName = tea.String(zoneName)
+	request.PageSize = tea.Int64(int64(500))
 
-	var records []alidns.Record
+	var records []*alidns.DescribeDomainRecordsResponseBodyDomainRecordsRecord
 
 	result, err := c.aliDNSClient.DescribeDomainRecords(request)
 	if err != nil {
@@ -269,8 +287,8 @@ func (c *aliDNSProviderSolver) findTxtRecords(domain string, fqdn string) ([]ali
 	}
 
 	recordName := c.extractRecordName(fqdn, zoneName)
-	for _, record := range result.DomainRecords.Record {
-		if record.RR == recordName {
+	for _, record := range result.Body.DomainRecords.Record {
+		if *record.RR == recordName {
 			records = append(records, record)
 		}
 	}
