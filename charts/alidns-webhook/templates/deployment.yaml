@@ -20,9 +20,9 @@ spec:
         release: {{ .Release.Name }}
     spec:
       serviceAccountName: {{ include "alidns-webhook.fullname" . }}
-      {{- if .Values.securityContext }}
+      {{- with .Values.securityContext }}
       securityContext:
-        {{- toYaml .Values.securityContext | nindent 8 }}
+        {{- . | toYaml | nindent 8 }}
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
