@@ -14,7 +14,7 @@ helm repo update
 helm install alidns-webhook cert-manager-alidns-webhook/alidns-webhook
 ```
 
-Create the secret holding alibaba credential :
+Create the secret holding alibaba credential, access-token need input AccessKeyId, secret-key need input AccessKeySecret:
 ```
 kubectl create secret generic alidns-secrets --from-literal="access-token=yourtoken" --from-literal="secret-key=yoursecretkey"
 ```
