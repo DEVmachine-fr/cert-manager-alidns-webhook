@@ -279,7 +279,7 @@ func (c *aliDNSProviderSolver) findTxtRecords(domain string, fqdn string) ([]ali
 
 func (c *aliDNSProviderSolver) extractRecordName(fqdn, domain string) string {
 	name := util.UnFqdn(fqdn)
-	if idx := strings.Index(name, "."+domain); idx != -1 {
+	if idx := strings.LastIndex(name, "."+domain); idx != -1 {
 		return name[:idx]
 	}
 	return name
