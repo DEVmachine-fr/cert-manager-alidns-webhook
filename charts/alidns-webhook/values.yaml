@@ -15,7 +15,7 @@ certManager:
 
 image:
   repository: ghcr.io/devmachine-fr/cert-manager-alidns-webhook/cert-manager-alidns-webhook
-  tag: 0.3.0
+  tag: 0.3.1
   pullPolicy: IfNotPresent
   privateRegistry:
     enabled: false
